@@ -17,7 +17,7 @@
     "url": "https://github.com/insightmachineslab/yamts"
   },
   "dependencies": {
-    "cordova-android": "^9.0.0"
+    "cordova-android": "^8.1.0"
   },
   "devDependencies": {
     "cordova-plugin-whitelist": "^1.3.4"
