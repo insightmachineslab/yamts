@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <link type="text/css" href="../css/materialize.min.css" rel="stylesheet">
+    <link type="text/css" href="../css/material-icons.css" rel="stylesheet">
+    <link type="text/css" href="../css/styles.css" rel="stylesheet">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <title>YAMTS Control - Step Mode</title>
+  </head>
+
+  <body class="grey lighten-4 mode-body">
+    <div class="container">
+      <h3>Step Mode</h3>      
+
+      <form class="col s12">
+        <div class="row">          
+          <p>Total frames:</p>
+          <div class="valign-wrapper">
+            <input type="range" style="width:65%" min="25" max="600" value="300" id="totalFrames-slider">
+            <input type="number" id="totalFrames-value" value="" style="margin-left:10px;width:15%;text-align:right;">
+          </div>
+        </div>
+        
+        <div class="row">
+          <p>Frame interval:</p>
+          <input type="range" min="3" max="60" value="5" style="width:70%" id="frameInterval-slider">
+          <input type="number" id="frameInterval-value" value="" style="margin-left:10px;width:10%;text-align:right;">
+          <span>sec.</span>
+        </div>
+
+        <div class="row">
+          <p>Trigger press time:</p>
+          <input type="range" min="0" max="10" value="0" style="width:70%" id="triggerPressTime-slider">
+          <input type="number" id="triggerPressTime-value" value="" style="margin-left:10px;width:10%;text-align:right;">
+          <span>sec.</span>
+        </div>
+
+        <div class="row">
+          <p>Total duration:</p>
+          <input type="text" id="totalDuration-value" value="" style="text-align:center" class="col s6 offset-s3" readonly>
+        </div>
+      </form>
+    </div>
+
+    <div class="row" style="position: absolute; width: 100%; bottom: 0px;">
+      <p id="messageText" style="text-align:center">Searching for device...</p>
+      <a id="startButton" href="#" class="btn waves-effect col s4 offset-s1 disabled">Start</a>
+      <a href="../index.html" class="btn waves-effect col s4 offset-s2">Cancel</a>      
+    </div>
+
+		<!-- <script type="text/javascript" src="../cordova.js"></script> -->
+    <script type="text/javascript" src="../js/app.js"></script>
+    <script>
+      function calculateTotalDuration() {
+        const totalFramesInput = document.getElementById('totalFrames-value');
+        const frameIntervalInput = document.getElementById('frameInterval-value');
+        let totalSeconds = totalFramesInput.value*frameIntervalInput.value;
+        let hours = Math.floor(totalSeconds/3600);
+        let minutes = Math.floor((totalSeconds%3600)/60);
+        let remainingSeconds = totalSeconds%60;
+        document.getElementById('totalDuration-value').value = padTimeValue(hours) + ":" + padTimeValue(minutes) + ":" + padTimeValue(remainingSeconds);
+      }
+
+      function padTimeValue(val) {
+        return String(val).padStart(2, '0');
+      }
+
+      function getTotalFrames() {
+        return document.getElementById('totalFrames-value').value
+      }
+
+      function getFrameInterval() {
+        return document.getElementById('frameInterval-value').value
+      }
+
+      function getTriggerPressTime() {
+        return document.getElementById('triggerPressTime-value').value
+      }
+
+      window.onload = () => {
+        bindSlidersAndValueFields( calculateTotalDuration )
+        enableStartButtonWhenDeviceIsAvailable()
+
+        document.getElementById('startButton').onclick = (evt) => {
+          console.log('Starting...')
+          let totalFrames = getTotalFrames()
+          let frameInterval = getFrameInterval()
+          let triggerPressTime = getTriggerPressTime()
+          Promise.all([            
+            setYamtsProperty('continousMode', false),
+            setYamtsProperty('totalFrames', totalFrames),
+            setYamtsProperty('frameInterval', frameInterval),
+            setYamtsProperty('triggerPressTime', triggerPressTime),
+          ])
+          .then( values => console.log(values) )
+          .then( () => setYamtsProperty("started", true))
+          .then( () => $("#startButton").addClass("disabled") )
+        }
+      }
+
+      
+    </script> 
+    
+  </body>
+
+</html>

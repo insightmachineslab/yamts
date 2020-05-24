@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <title>YAMTS Control - Continous Mode</title>
+    <link type="text/css" href="../css/materialize.min.css" rel="stylesheet">
+    <link type="text/css" href="../css/material-icons.css" rel="stylesheet">
+    <link type="text/css" href="../css/styles.css" rel="stylesheet">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+  </head>
+
+  <body class="grey lighten-4 mode-body"></body>
+    <div class="container">      
+      <h3>Continous Mode</h3>
+
+      <div class="row">
+        <p>Total duration:</p>
+        <input type="range" style="width:65%" min="10" max="600" value="300" id="totalSeconds-slider">
+        <input type="number" id="totalSeconds-value" value="" style="margin-left:10px;width:15%;text-align:right;">
+        <span style="padding-top: 10px;">sec.</span>
+      </div>
+
+      <div class="row">
+        <input type="text" id="totalDuration-value" value="" style="text-align:center" class="col s6 offset-s3" readonly>
+      </div>
+    </div>
+
+    <div class="row" style="position: absolute; width: 100%; bottom: 0px;">
+      <p id="messageText" style="text-align:center">Searching for device...</p>
+      <a id="startButton" href="#" class="btn waves-effect col s4 offset-s1 disabled">Start</a>      
+      <a href="../index.html" class="btn waves-effect col s4 offset-s2">Cancel</a>      
+    </div>
+
+		<!-- <script type="text/javascript" src="../cordova.js"></script> -->
+    <script type="text/javascript" src="../js/app.js"></script>
+    <script>
+      function calculateTotalDuration() {        
+        const totalDurationInput = document.getElementById('totalSeconds-value');
+        let totalSeconds = totalDurationInput.value;
+        let hours = Math.floor(totalSeconds/3600);
+        let minutes = Math.floor((totalSeconds-hours*60)/60);
+        let remainingSeconds = totalSeconds%60;
+        document.getElementById('totalDuration-value').value = padTimeValue(hours) + ":" + padTimeValue(minutes) + ":" + padTimeValue(remainingSeconds);
+      }
+
+      function padTimeValue(val) {
+        return String(val).padStart(2, '0');
+      }
+
+      function getDuration() {
+        return document.getElementById('totalSeconds-value').value
+      }
+
+      window.onload = () => {        
+        bindSlidersAndValueFields( calculateTotalDuration )
+        enableStartButtonWhenDeviceIsAvailable()
+        
+        document.getElementById('startButton').onclick = (evt) => {
+          console.log('Starting...')
+          let duration = getDuration()          
+          Promise.all([            
+            setYamtsProperty('continousMode', true),
+            setYamtsProperty('duration', duration),            
+          ])
+          .then( values => console.log(values) )
+          .then( () => setYamtsProperty("started", true))
+          .then( () => $("#startButton").addClass("disabled") )
+        }
+      }      
+    </script> 
+  </body>
+
+</html>
